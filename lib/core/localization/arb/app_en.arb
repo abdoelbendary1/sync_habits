@@ -1,0 +1,18 @@
+{
+  "@@locale": "en",
+  "syncHabit": "SyncHabit",
+  "myHabits": "My Habits",
+  "habitsRemaining": "{count} remaining",
+  "@habitsRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "newHabit": "New Habit",
+  "habitName": "HABIT NAME",
+  "habitNameHint": "e.g. Read for 30 mins",
+  "saveHabit": "Save Habit",
+  "repeatDaily":"REPEAT DAILY"
+}

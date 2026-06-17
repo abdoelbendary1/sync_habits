@@ -1,0 +1,12 @@
+{
+  "@@locale": "ar",
+  "syncHabit": "مزامنة العادات",
+  "myHabits": "عاداتي",
+  "habitsRemaining": "متبقي {count}",
+  "newHabit": "عادة جديدة",
+  "habitName": "اسم العادة",
+  "habitNameHint": "مثال: القراءة لمدة ٣٠ دقيقة",
+  "saveHabit": "حفظ العادة",
+  "repeatDaily":"تكرار يومي"
+
+}
