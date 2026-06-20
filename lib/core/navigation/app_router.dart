@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sync_habits/features/accountability/presentation/pages/analytics_page.dart';
 import 'package:sync_habits/features/accountability/presentation/pages/select_partner_page.dart';
-import 'package:sync_habits/features/habits/presentation/pages/BottomNavBarScaffold.dart';
-import 'package:sync_habits/features/habits/presentation/pages/home_screen.dart';
-import 'package:sync_habits/features/habits/presentation/pages/new_habit_page.dart';
+import 'package:sync_habits/features/home/presentation/pages/BottomNavBarScaffold.dart';
+import 'package:sync_habits/features/home/presentation/pages/home_screen.dart';
+import 'package:sync_habits/features/home/presentation/pages/new_habit_page.dart';
 import 'package:sync_habits/features/profile/presentation/pages/ProfilePage.dart';
 
 part 'app_router.g.dart'; // الملف اللي هيتولد تلقائيًا
