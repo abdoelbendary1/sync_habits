@@ -9,4 +9,5 @@ class AppColors {
   static const textPrimary = Colors.white;
   static const textSecondary = Colors.grey;
   static const transparent = Colors.transparent;
+  static const red = Colors.red;
 }

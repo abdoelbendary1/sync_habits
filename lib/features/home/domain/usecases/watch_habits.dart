@@ -6,8 +6,8 @@ import 'package:sync_habits/features/home/domain/entities/habit_entity.dart';
 import 'package:sync_habits/features/home/domain/repositories/habit_repository.dart';
 
 @injectable
-class GetTodayHabits {
+class WatchHabitsStream {
   final HabitRepository _repo;
-  GetTodayHabits(this._repo);
-  Future<Either<Failure, List<HabitEntity>>> call() => _repo.getTodayHabits();
+  WatchHabitsStream(this._repo);
+  Stream<Either<Failure, List<HabitEntity>>> call() => _repo.watchHabits();
 }

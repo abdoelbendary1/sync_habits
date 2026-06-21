@@ -9,4 +9,4 @@ final getIt = GetIt.instance;
   preferRelativeImports: true, // يفضل استخدام الـ relative paths
   asExtension: true, // هيخليها تتندى كـ Extension على GetIt
 )
-void configureDependencies() => getIt.init();
+Future<void> configureDependencies() => getIt.init();
