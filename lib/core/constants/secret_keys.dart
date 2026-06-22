@@ -1,0 +1,3 @@
+final supabaseURL = "https://mznupbyycstoksaetvtv.supabase.co";
+final supabaseKey =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16bnVwYnl5Y3N0b2tzYWV0dnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMzU2NDgsImV4cCI6MjA5NzcxMTY0OH0.QOTNevO8HUlnw_0Ms5XUdKPTJNRPylHnRF2OL4T2Mvc";

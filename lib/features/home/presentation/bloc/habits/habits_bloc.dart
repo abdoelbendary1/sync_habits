@@ -6,7 +6,6 @@ import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:sync_habits/core/error/failures.dart';
-import 'package:sync_habits/features/home/data/models/habit_model.dart';
 import 'package:sync_habits/features/home/domain/entities/habit_entity.dart';
 import 'package:sync_habits/features/home/domain/usecases/add_habit.dart';
 import 'package:sync_habits/features/home/domain/usecases/delete_habit.dart';

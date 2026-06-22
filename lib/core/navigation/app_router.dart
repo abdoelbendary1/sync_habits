@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sync_habits/features/accountability/presentation/pages/analytics_page.dart';
 import 'package:sync_habits/features/accountability/presentation/pages/select_partner_page.dart';
+import 'package:sync_habits/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:sync_habits/features/auth/presentation/pages/login_screen.dart';
 import 'package:sync_habits/features/home/presentation/pages/BottomNavBarScaffold.dart';
 import 'package:sync_habits/features/home/presentation/pages/home_screen.dart';
 import 'package:sync_habits/features/home/presentation/pages/new_habit_page.dart';
@@ -15,9 +18,40 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 // 2. تعريف الـ Router Configuration
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/home', // شاشة البداية
+  initialLocation: '/home',
+  // 🔄 1. DYNAMIC AUTHENTICATION REDIRECT GUARD
+  redirect: (context, state) {
+    final authState = context.read<AuthBloc>().state;
+
+    // Check if the user is logged in based on your AuthBloc state
+    final bool isLoggedIn = authState.maybeWhen(
+      authenticated: (_) => true,
+      orElse: () => false,
+    );
+
+    final bool isLoggingIn = state.matchedLocation == '/login';
+
+    // If not logged in and trying to access app pages -> Force redirect to Login
+    if (!isLoggedIn && !isLoggingIn) return '/login';
+
+    // If logged in and trying to view Login page -> Push them to Home instead
+    if (isLoggedIn && isLoggingIn) return '/home';
+
+    // No redirection needed, proceed normally
+    return null;
+  }, // شاشة البداية
   routes: $appRoutes, // المتغير ده بيتولد تلقائيًا من الـ Classes اللي تحت
 );
+
+@TypedGoRoute<LoginRoute>(path: '/login')
+class LoginRoute extends GoRouteData with $LoginRoute {
+  // 💡 Added 'with $LoginRoute' here
+  const LoginRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const LoginScreen();
+}
 
 // ==========================================
 // 3. بناء الـ Shell Route (Bottom Nav Bar)

@@ -14,6 +14,12 @@ import 'package:hive/hive.dart' as _i979;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i454;
 
+import '../../features/auth/data/datasources/auth_remote_data_source.dart'
+    as _i107;
+import '../../features/auth/data/repositories/auth_repo_impl.dart' as _i662;
+import '../../features/auth/domain/repositories/auth_repo.dart' as _i723;
+import '../../features/auth/domain/usecases/auth_usecases.dart' as _i46;
+import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
 import '../../features/home/data/datasources/habit_local_data_source.dart'
     as _i394;
 import '../../features/home/data/datasources/habit_remote_data_source.dart'
@@ -33,6 +39,7 @@ import '../../features/home/presentation/bloc/partnerActivity/partner_activity_b
     as _i193;
 import '../../features/home/presentation/bloc/PartnershipSyncBloc/partnership_sync_bloc.dart'
     as _i321;
+import '../../features/profile/presentation/bloc/bloc/user_bloc.dart' as _i261;
 import 'RegisterModule.dart' as _i876;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -51,6 +58,9 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'habitBox',
       preResolve: true,
     );
+    gh.lazySingleton<_i107.AuthRemoteDataSource>(
+      () => _i107.AuthRemoteDataSourceImpl(gh<_i454.SupabaseClient>()),
+    );
     gh.lazySingleton<_i394.HabitLocalDataSource>(
       () => _i394.HabitLocalDataSourceImpl(
         gh<_i979.Box<dynamic>>(instanceName: 'habitBox'),
@@ -58,6 +68,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i508.HabitRemoteDataSource>(
       () => _i508.HabitRemoteDataSourceImpl(gh<_i454.SupabaseClient>()),
+    );
+    gh.lazySingleton<_i723.IAuthRepository>(
+      () => _i662.AuthRepositoryImpl(
+        remoteDataSource: gh<_i107.AuthRemoteDataSource>(),
+      ),
     );
     gh.lazySingleton<_i360.HabitRepository>(
       () => _i807.HabitsRepoImpl(gh<_i394.HabitLocalDataSource>()),
@@ -76,6 +91,31 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i932.WatchHabitsStream>(
       () => _i932.WatchHabitsStream(gh<_i360.HabitRepository>()),
+    );
+    gh.factory<_i46.LoginUseCase>(
+      () => _i46.LoginUseCase(gh<_i723.IAuthRepository>()),
+    );
+    gh.factory<_i46.SignUpUseCase>(
+      () => _i46.SignUpUseCase(gh<_i723.IAuthRepository>()),
+    );
+    gh.factory<_i46.LogoutUseCase>(
+      () => _i46.LogoutUseCase(gh<_i723.IAuthRepository>()),
+    );
+    gh.factory<_i46.FetchUserProfileUseCase>(
+      () => _i46.FetchUserProfileUseCase(gh<_i723.IAuthRepository>()),
+    );
+    gh.factory<_i261.UserBloc>(
+      () => _i261.UserBloc(
+        fetchUserProfileUseCase: gh<_i46.FetchUserProfileUseCase>(),
+      ),
+    );
+    gh.factory<_i797.AuthBloc>(
+      () => _i797.AuthBloc(
+        loginUseCase: gh<_i46.LoginUseCase>(),
+        signUpUseCase: gh<_i46.SignUpUseCase>(),
+        logoutUseCase: gh<_i46.LogoutUseCase>(),
+        userBloc: gh<_i261.UserBloc>(),
+      ),
     );
     gh.factory<_i547.HabitsBloc>(
       () => _i547.HabitsBloc(

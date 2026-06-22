@@ -42,13 +42,14 @@ class MyHabitsSection extends StatelessWidget {
                         ),
                         Text(
                           '${uncompletedHabits.length} remaining',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 14.sp,
                           ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 16),
                     ListView.builder(
                       shrinkWrap: true,
@@ -58,14 +59,6 @@ class MyHabitsSection extends StatelessWidget {
                         final habit = habits[index];
 
                         return Dismissible(
-                          // onUpdate: (details) {
-                          //   if (details.direction !=
-                          //       DismissDirection.endToStart) {
-                          //     context.read<HabitsBloc>().add(
-                          //       HabitsEvent.swipeCard(0),
-                          //     );
-                          //   }
-                          // },
                           key: Key(habit.id ?? ''),
                           direction: DismissDirection.endToStart,
                           onDismissed: (_) => context.read<HabitsBloc>().add(
