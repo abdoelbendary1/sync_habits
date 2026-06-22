@@ -1,51 +1,73 @@
-import 'package:injectable/injectable.dart';
+// features/habits/data/datasources/habit_remote_data_source.dart
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/habit_model.dart';
 
 abstract class HabitRemoteDataSource {
-  // جلب العادات من السيرفر
-  Future<List<HabitModel>> getRemoteHabits();
-
-  // رفع عادة جديدة للسيرفر
-  Future<void> uploadHabit(HabitModel habit);
-
-  // تحديث حالة العادة على السيرفر (مكتملة أو لأ)
-  Future<void> updateRemoteHabitStatus(String habitId, bool isCompleted);
+  Stream<List<HabitModel>> watchHabits();
+  Future<List<HabitModel>> getTodayHabits();
+  Future<void> addHabit(HabitModel habit);
+  Future<void> updateHabit(HabitModel habit);
+  Future<void> deleteHabit(String id);
+  Future<void> toggleHabitCompletion(String id, bool isCompleted);
 }
-@LazySingleton(as: HabitRemoteDataSource)
+
 class HabitRemoteDataSourceImpl implements HabitRemoteDataSource {
-  final SupabaseClient _supabaseClient;
+  final SupabaseClient _supabase;
 
-  // بنمرر الـ SupabaseClient من بره عشان الـ Dependency Injection
-  HabitRemoteDataSourceImpl(this._supabaseClient);
+  HabitRemoteDataSourceImpl(this._supabase);
+
+  // Getter to securely resolve current authenticated user ID
+  String get _currentUserId => _supabase.auth.currentUser!.id;
 
   @override
-  Future<List<HabitModel>> getRemoteHabits() async {
-    // بنكلم جدول الـ habits في Supabase
-    final response = await _supabaseClient
+  Stream<List<HabitModel>> watchHabits() {
+    return _supabase
         .from('habits')
-        .select();
-    
-    // بنحول البيانات اللي راجعة لـ List من الـ HabitModel
-    return (response as List)
-        .map((json) => HabitModel.fromJson(json))
-        .toList();
+        .stream(primaryKey: ['id'])
+        .eq('user_id', _currentUserId) // Isolates execution to owner context
+        .map((maps) => maps.map((map) => HabitModel.fromJson(map)).toList());
   }
 
   @override
-  Future<void> uploadHabit(HabitModel habit) async {
-    // بنعمل Insert للـ JSON بتاع الموديل في السيرفر
-    await _supabaseClient
+  Future<List<HabitModel>> getTodayHabits() async {
+    final response = await _supabase
         .from('habits')
-        .insert(habit.toJson());
+        .select()
+        .eq('user_id', _currentUserId);
+
+    return (response as List).map((map) => HabitModel.fromJson(map)).toList();
   }
 
   @override
-  Future<void> updateRemoteHabitStatus(String habitId, bool isCompleted) async {
-    // بنعمل Update لحقل الـ isCompletedToday بناءً على الـ id
-    await _supabaseClient
+  Future<void> addHabit(HabitModel habit) async {
+    // Exclude 'id' from map payload if database generates it as a UUID
+    final jsonMap = habit.toJson();
+    if (habit.id.isEmpty) jsonMap.remove('id');
+
+    await _supabase.from('habits').insert(jsonMap);
+  }
+
+  @override
+  Future<void> updateHabit(HabitModel habit) async {
+    await _supabase
         .from('habits')
-        .update({'isCompletedToday': isCompleted})
-        .eq('id', habitId);
+        .update(habit.toJson())
+        .eq('id', habit.id);
+  }
+
+  @override
+  Future<void> deleteHabit(String id) async {
+    await _supabase.from('habits').delete().eq('id', id);
+  }
+
+  @override
+  Future<void> toggleHabitCompletion(String id, bool isCompleted) async {
+    await _supabase
+        .from('habits')
+        .update({
+          'is_completed_today': isCompleted,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', id);
   }
 }
