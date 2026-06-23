@@ -8,7 +8,7 @@ import 'new_habit_state.dart';
 
 @injectable
 class NewHabitBloc extends Bloc<NewHabitEvent, NewHabitState> {
-final  AddHabit addHabit;
+  final AddHabit addHabit;
   // final HabitRepository _repo; // ضيف الـ Repository بتاعك هنا
 
   NewHabitBloc(this.addHabit) : super(const NewHabitState()) {
@@ -46,8 +46,9 @@ final  AddHabit addHabit;
 
     emit(state.copyWith(status: FormStatus.submitting));
 
-    try {final newHabit = state.toEntity();
-      addHabit.call(newHabit ); // محاكاة للـ API
+    try {
+      final newHabit = state.toEntity();
+      addHabit.call(newHabit, '1'); // محاكاة للـ API
       emit(state.copyWith(status: FormStatus.success));
     } catch (e) {
       emit(

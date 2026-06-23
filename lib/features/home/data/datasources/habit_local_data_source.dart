@@ -10,7 +10,7 @@ abstract class HabitLocalDataSource {
 
   // حفظ عادة جديدة أو تحديث عادة موجودة في الكاش
   Future<void> cacheHabit(HabitModel habit);
-
+  Future<HabitModel> getCachedHabit(String id);
   // حفظ قائمة كاملة من العادات (مثلاً لما نيجي نـ sync من السيرفر)
   Future<void> cacheAllHabits(List<HabitModel> habits);
 
@@ -85,5 +85,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
               HabitModel.fromJson(Map<String, dynamic>.from(json)),
         )
         .toList();
+  }
+
+  @override
+  Future<HabitModel> getCachedHabit(String id) async {
+    final habit = await _habitBox.get(id);
+    return HabitModel.fromJson(Map<String, dynamic>.from(habit!));
   }
 }

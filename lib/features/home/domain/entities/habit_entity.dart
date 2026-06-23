@@ -1,5 +1,8 @@
+import 'package:sync_habits/features/home/data/models/habit_model.dart';
+
 class HabitEntity {
   final String? id;
+  final String? userId;
   final String? title;
   final int? streakCount;
   final String? categoryId;
@@ -12,9 +15,11 @@ class HabitEntity {
   final DateTime? reminderTime;
   final String? notes;
   final String? dailyGoal;
+  final bool? isDirty;
 
   const HabitEntity({
     this.id,
+    this.userId,
     this.title,
     this.streakCount,
     this.isCompletedToday,
@@ -27,6 +32,7 @@ class HabitEntity {
     this.reminderTime,
     this.notes,
     this.dailyGoal,
+    this.isDirty,
   });
 
   // ميزة للـ Seniors: بتساعدنا نعدل على الـ Object مع الحفاظ عليه كـ Immutable
@@ -59,6 +65,28 @@ class HabitEntity {
       reminderTime: reminderTime ?? this.reminderTime,
       notes: notes ?? this.notes,
       dailyGoal: dailyGoal ?? this.dailyGoal,
+    );
+  }
+}
+
+extension HabitEntityMapper on HabitEntity {
+  HabitModel toModel() {
+    return HabitModel(
+      id: id ?? '',
+      userId: userId ?? "",
+      title: title ?? '',
+      streakCount: streakCount ?? 0,
+      isCompletedToday: isCompletedToday ?? false,
+      createdAt: createdAt ?? DateTime.now(),
+      categoryId: categoryId,
+      updatedAt: updatedAt ?? DateTime.now(),
+      isSyncedWithPartner: isSyncedWithPartner ?? false,
+      syncedPartnerIds: syncedPartnerIds ?? [],
+      repeatDayIds: repeatDayIds ?? [],
+      reminderTime: reminderTime,
+      notes: notes,
+      dailyGoal: dailyGoal,
+      isDirty: isDirty ?? false,
     );
   }
 }

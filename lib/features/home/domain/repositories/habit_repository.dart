@@ -8,7 +8,7 @@ abstract class HabitRepository {
   Stream<Either<Failure, List<HabitEntity>>> watchHabits();
   Future<Either<Failure, List<HabitEntity>>> getTodayHabits();
   // These mutate the local DB instantly and sync with the server in the background
-  Future<Either<Failure, void>> addHabit(HabitEntity habit);
+  Future<Either<Failure, void>> addHabit(HabitEntity habit, String userId);
   Future<Either<Failure, void>> deleteHabit(String id);
   Future<Either<Failure, void>> toggleHabitCompletion(String id);
   Future<Either<Failure, void>> updateHabit(HabitEntity habit);

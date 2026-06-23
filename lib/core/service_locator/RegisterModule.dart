@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
 
 import 'package:injectable/injectable.dart';
@@ -11,4 +12,6 @@ abstract class RegisterModule {
 
   @lazySingleton
   SupabaseClient get supabaseClient => Supabase.instance.client;
+  @lazySingleton
+  Connectivity get connectivity => Connectivity();
 }

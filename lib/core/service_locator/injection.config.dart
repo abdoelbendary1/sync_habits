@@ -9,6 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:hive/hive.dart' as _i979;
 import 'package:injectable/injectable.dart' as _i526;
@@ -53,6 +54,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i321.PartnershipSyncBloc>(() => _i321.PartnershipSyncBloc());
     gh.factory<_i193.PartnerActivityBloc>(() => _i193.PartnerActivityBloc());
     gh.lazySingleton<_i454.SupabaseClient>(() => registerModule.supabaseClient);
+    gh.lazySingleton<_i895.Connectivity>(() => registerModule.connectivity);
     await gh.factoryAsync<_i979.Box<dynamic>>(
       () => registerModule.habitBox,
       instanceName: 'habitBox',
@@ -66,16 +68,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i979.Box<dynamic>>(instanceName: 'habitBox'),
       ),
     );
-    gh.lazySingleton<_i508.HabitRemoteDataSource>(
-      () => _i508.HabitRemoteDataSourceImpl(gh<_i454.SupabaseClient>()),
+    gh.lazySingleton<_i360.HabitRepository>(
+      () => _i807.HabitsRepoImpl(
+        gh<_i394.HabitLocalDataSource>(),
+        gh<_i508.HabitRemoteDataSource>(),
+        gh<_i895.Connectivity>(),
+      ),
     );
     gh.lazySingleton<_i723.IAuthRepository>(
       () => _i662.AuthRepositoryImpl(
         remoteDataSource: gh<_i107.AuthRemoteDataSource>(),
       ),
-    );
-    gh.lazySingleton<_i360.HabitRepository>(
-      () => _i807.HabitsRepoImpl(gh<_i394.HabitLocalDataSource>()),
     );
     gh.factory<_i386.AddHabit>(
       () => _i386.AddHabit(gh<_i360.HabitRepository>()),

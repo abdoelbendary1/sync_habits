@@ -1,7 +1,9 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:sync_habits/core/error/failures.dart';
 import 'package:sync_habits/features/home/data/datasources/habit_local_data_source.dart';
+import 'package:sync_habits/features/home/data/datasources/habit_remote_data_source.dart';
 import 'package:sync_habits/features/home/data/models/habit_model.dart';
 import 'package:sync_habits/features/home/domain/entities/habit_entity.dart';
 import 'package:sync_habits/features/home/domain/repositories/habit_repository.dart';
@@ -9,15 +11,23 @@ import 'package:sync_habits/features/home/domain/repositories/habit_repository.d
 @LazySingleton(as: HabitRepository)
 class HabitsRepoImpl implements HabitRepository {
   HabitLocalDataSource localDataSource;
-  HabitsRepoImpl(this.localDataSource);
+  HabitRemoteDataSource remoteDataSource;
+  final Connectivity connectivity; // 💡 Declare it here
+  HabitsRepoImpl(
+    this.localDataSource,
+    this.remoteDataSource,
+    this.connectivity,
+  );
   @override
-  Future<Either<Failure, void>> addHabit(HabitEntity habit) async {
+  Future<Either<Failure, void>> addHabit(
+    HabitEntity habit,
+    String userId,
+  ) async {
     try {
-      // هنا السحر: الـ Repo جاله Entity، حولها لـ Model وباصاها للـ Data Source
-      // ملحوظة: يفضل تعمل دالة توضيحية أو الـ Extension اللي إنت عامله
-      final model = HabitModel.fromEntity(habit);
+      final model = HabitModel.fromEntity(habit, userId);
 
       await localDataSource.cacheHabit(model);
+      await remoteDataSource.upsert(model);
       return const Right(null);
     } catch (e) {
       return const Left(CacheFailure(message: 'لم نتمكن من حفظ العادة.'));
@@ -28,6 +38,7 @@ class HabitsRepoImpl implements HabitRepository {
   Future<Either<Failure, void>> deleteHabit(String id) async {
     try {
       await localDataSource.deleteHabit(id);
+      await remoteDataSource.delete(id);
       return const Right(null);
     } catch (e) {
       return const Left(CacheFailure(message: 'لم نتمكن من حذف العادة.'));
@@ -44,6 +55,8 @@ class HabitsRepoImpl implements HabitRepository {
   Future<Either<Failure, void>> toggleHabitCompletion(String id) async {
     try {
       await localDataSource.toggleHabitCompletion(id);
+      final habit = await localDataSource.getCachedHabit(id);
+      await remoteDataSource.upsert(habit);
       return const Right(null);
     } catch (e) {
       return const Left(
@@ -78,20 +91,35 @@ class HabitsRepoImpl implements HabitRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateHabit(HabitEntity habit) {
-    // TODO: implement updateHabit
-    throw UnimplementedError();
+  Future<Either<Failure, void>> updateHabit(HabitEntity habit) async {
+    try {
+      await localDataSource.updateHabit(habit);
+      await remoteDataSource.upsert(habit.toModel());
+      return const Right(null);
+    } catch (e) {
+      return const Left(CacheFailure(message: 'لم نتمكن من حفظ العادة.'));
+    }
   }
 
   @override
   Future<Either<Failure, List<HabitEntity>>> getTodayHabits() async {
     try {
-      final models = await localDataSource.getTodayHabits();
-      final entities = models.map((model) => model.toEntity()).toList();
-      return Right(entities);
+      // 1. Get whatever data is currently cached in Hive (Fast Response)
+      final cachedModels = await localDataSource.getTodayHabits();
+      final cachedEntities = cachedModels
+          .map((model) => model.toEntity())
+          .toList();
+
+      // 2. Trigger a background synchronization over the network (Non-blocking)
+      // We don't 'await' this because we don't want to make the user wait for the internet!
+
+      // 3. Instantly return the cached items to the presentation layer
+      return Right(cachedEntities);
     } catch (e) {
       return const Left(
-        CacheFailure(message: 'خطاء في قراءة العادات اليومية.'),
+        CacheFailure(
+          message: 'خطأ في قراءة العادات اليومية من التخزين المحلي.',
+        ),
       );
     }
   }
